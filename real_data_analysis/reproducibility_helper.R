@@ -164,8 +164,10 @@ binarize_importance <- function(gbm_res, binarize_method = 'top_n', method_par =
 
 load_GBM <- function(ct, datasets, binarize_method = 'quantile', method_par = 0.95, output_dir = './output'){
     res_df_list <- list()
+    if(length(ct) == 1) ct <- rep(ct, length(datasets))
+    names(ct) <- datasets
     for(dataset in datasets){
-        res_df_list[[dataset]] <- readRDS(sprintf('%s/%s/GBM_%s.rds', output_dir, dataset, ct))
+        res_df_list[[dataset]] <- readRDS(sprintf('%s/%s/GBM_%s.rds', output_dir, dataset, ct[dataset]))
         res_df_list[[dataset]]$g_index <- 1:nrow(res_df_list[[dataset]])
         res_df_list[[dataset]] <- binarize_importance(res_df_list[[dataset]], binarize_method, method_par)
     }
