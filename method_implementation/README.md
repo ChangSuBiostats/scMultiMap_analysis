@@ -12,4 +12,4 @@
    - A customized implementation of Signac that fixes the coding error in p value calculation and speeds up computation
    - Based on its original implementation at https://github.com/stuart-lab/signac/blob/8ecdde2/R/links.R
 
-For more details on the customization made in 2-3, please referen to the manuscript Methods section.
+For more details on the customization made in 2-3, please refer to the Methods section in the manuscript.

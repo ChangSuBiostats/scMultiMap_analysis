@@ -10,6 +10,7 @@ Chang Su, Dongsoo Lee, Peng Jin and Jingfei Zhang. (2024). [Cell-type-specific m
 - preprocessing: code for data processing 
 - simulation: code for evaluating type I errors and power based on simulation & permutation
 - real_data_analysis: code for analysis based on real data
+- manuscript: code for generating the figures
 
 Please read **workflow.md** or **README.md** under each folder for detailed documentation.
 
