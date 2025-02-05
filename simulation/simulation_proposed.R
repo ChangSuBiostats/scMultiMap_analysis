@@ -1,7 +1,7 @@
 library(dplyr)
 library(Seurat)
 library(Matrix)
-source('../method_implementation/moment_regressions.R')
+library(scMultiMap)
 source('simulation_helper.R')
 library("optparse")
 option_list = list(
@@ -101,37 +101,35 @@ for(i_permu in 1:n_permu){
         peak_seq_depths <- colSums(ct_obj[[pn]]@counts) + rowSums(X_peaks) - colSums(ct_obj[[pn]]@counts[sampled_pairs$peak,])
     }
 
-    if(!adjust_for_batch){
-        gene_mar_pars <- mom_marginal(X_gene, rna_seq_depths, irls=T)
-        peak_mar_pars <- mom_marginal(X_peaks, peak_seq_depths, verbose = T, irls=T)
-    }else{
-        batch_mat <- matrix(0, nrow = ncol(ct_obj), ncol = length(unique_batches))
-        colnames(batch_mat) <- unique_batches
-        for(b in unique_batches) batch_mat[batch_var == b, b] <- 1
-        gene_mar_pars <- mom_marginal_adj_for_batch(X_gene, rna_seq_depths, batch=batch_mat, irls=T)
-        peak_mar_pars <- mom_marginal_adj_for_batch(X_peaks, peak_seq_depths, batch=batch_mat, irls=T)
-        rna_mu_mat[,,i_permu] <- gene_mar_pars$mu
-        peak_mu_mat[,,i_permu] <- peak_mar_pars$mu
-        rna_sigma_sq_mat[,i_permu] <- gene_mar_pars$sigma_sq
-        peak_sigma_sq_mat[,i_permu] <- peak_mar_pars$sigma_sq
-    }
+    # prepare input to scMultiMap functions
+    count_list <- list(X_gene, X_peaks)
+    seq_depth_list <- list(rna_seq_depths, peak_seq_depths)
+    assay_names <- names(count_list) <- names(seq_depth_list) <- c('RNA', 'peak')
     
-    # estimate correlations
-    res_mat <- matrix(nrow = n_pairs, ncol = 2)
-    colnames(res_mat) <- c('covar', 'test_stat')
-    # for each gene, evaluate its correlation with neighbouring peaks
-    for(i_g in 1:nrow(sampled_pairs)){
-        covar_res <- mom_covariance(gene_mar_pars$X_centered[,i_g], 
-                                    peak_mar_pars$X_centered[,i_g, drop=F],
-                                    gene_mar_pars$w[,i_g],
-                                    peak_mar_pars$w[,i_g, drop=F],
-                                    rna_seq_depths,
-                                    peak_seq_depths,
-                                    gene_mar_pars$X_var[, i_g],
-                                    peak_mar_pars$X_var[, i_g, drop=F])
-        res_mat[i_g,] <- c(covar_res$covar, covar_res$test_stat)
-    }
-    res_list[[i_permu]] <- res_mat
+    bsample <- ifelse(adjust_for_batch, ct_obj[[batch_var_name]], NULL)
+    irls_res <- list()
+    message('Start step 1: IRLS')
+    for(i in 1:2){
+        mod <- assay_names[i]
+        message(sprintf('Start IRLS for %s', mod))
+        irls_res[[mod]] <- scMultiMap_IRLS(count_list[[mod]],
+                                       seq_depth_list[[mod]],
+                                       bsample=bsample,
+                                       irls=T,
+                                       verbose=F)
+      }
+
+      ##
+      # scMultiMap step 2: WLS to infer peak-gene association
+      ##
+      message('Start step 2: WLS')
+      pairs_df <- data.frame(gene = colnames(X_gene), peak = colnames(X_peaks))
+      wls_res <- scMultiMap_WLS(count_list,
+                                seq_depth_list,
+                                pairs_df,
+                                irls_res,
+                                verbose = F)
+    res_list[[i_permu]] <- as.matrix(wls_res[,c('covar','test_stat')])
 }
 if(n_permu > 1){
     fn <- sprintf('%s_proposed_%s_sampled_%sresults%s.rds', output_dir, sampling, sparse_factor_suffix, batch_suffix)

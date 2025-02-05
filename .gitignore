@@ -1,0 +1,6 @@
+**/checkpoints_version/
+**/checkpoint_versions/
+**/results/
+_validation/
+**/scripts/
+**/.ipynb_checkpoints/

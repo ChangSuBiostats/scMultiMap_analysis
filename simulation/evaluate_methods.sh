@@ -12,7 +12,7 @@ Rscript simulation_Signac.R --ct="$ct" --study=$study --mode=$mode
 # SCENT (computationally intensive)
 for i in {1..100}
 do 
-  Rscript permutation_SCENT.R --i_permu=$i --ct="$ct" --study=$study --mode=$mode
+  Rscript simulation_SCENT.R --i_permu=$i --ct="$ct" --study=$study --mode=$mode
 done
 
 ##
@@ -27,6 +27,6 @@ Rscript simulation_Signac.R --ct="$ct" --study=$study --mode="$mode"_batch_effec
 # SCENT (computationally intensive)
 for i in {1..100}
 do 
-  Rscript permutation_SCENT.R --i_permu=$i --ct="$ct" --study=$study --mode="$mode"_batch_effect --adjust_for_batch=TRUE
+  Rscript simulation_SCENT.R --i_permu=$i --ct="$ct" --study=$study --mode="$mode"_batch_effect --adjust_for_batch=TRUE
 done
 

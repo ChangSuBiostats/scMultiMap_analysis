@@ -1,0 +1,10 @@
+scMultiMap_analysis
+================
+
+This GitHub repository contains the codes for reproducing the analysis in ``Cell-type-specific mapping of enhancers and target genes from single-cell multimodal data'' <https://doi.org/10.1101/2024.09.24.614814>
+
+# Structure
+- method_implementation: functions to run SCENT and Signac
+- preprocessing: analysis to preprocess PBMC
+* simulation
+* real_data_analysis
