@@ -16,3 +16,5 @@ Please read **workflow.md** or **README.md** under each folder for detailed docu
 
 ## R package and vignettes
 Please visit https://github.com/ChangSuBiostats/scMultiMap for the R package that implements `scMultiMap`, and https://changsubiostats.github.io/scMultiMap/ for vignettes.
+
+[![DOI](https://zenodo.org/badge/911856379.svg)](https://doi.org/10.5281/zenodo.14948460)
